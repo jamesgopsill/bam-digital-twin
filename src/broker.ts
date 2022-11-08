@@ -11,7 +11,6 @@ import {
 } from "./interfaces.js"
 import { BrokerEvents, MessageProtocols } from "./enums.js"
 
-
 export class Broker {
 	/**
 	 * A unique string that has to be provided in the header of a logs request to access the log files.
@@ -225,12 +224,11 @@ export class Broker {
 		socket.on(BrokerEvents.ALL_JOBS, (msg: any) =>
 			this.handleAllMessage(socket, msg, BrokerEvents.ALL_JOBS)
 		)
-
 	}
 
 	handleDirectMsg(originatingSocket: Socket, msg: any) {
 		if (this.debug) {
-			console.log(`${BrokerEvents.DIRECT}: ${JSON.stringify(msg)}`)
+			console.log(`${BrokerEvents.DIRECT}: ${JSON.stringify(msg.subject)}`)
 		}
 
 		const errMsg = this.validateMsg(msg)

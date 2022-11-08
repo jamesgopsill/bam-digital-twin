@@ -1,11 +1,17 @@
 import { io, Socket } from "socket.io-client"
-import { BrokerEvents, MachineStates, MessageProtocols, AgentTypes } from "./enums.js"
+import {
+	BrokerEvents,
+	MachineStates,
+	MessageProtocols,
+	AgentTypes,
+} from "./enums.js"
 import { Message } from "./interfaces.js"
+
+const debug = process.env.BAM_DEBUG || false
 
 const wait = (ms: number) => new Promise((r, _) => setTimeout(r, ms))
 
 export const createMachineAgent = () => {
-
 	let state: MachineStates = MachineStates.AVAILABLE
 	let interval: NodeJS.Timer | null = null
 	let jobs: Message[] = []
@@ -24,7 +30,7 @@ export const createMachineAgent = () => {
 	}
 
 	const sendQuery = () => {
-		console.log(`|- MachineAgent: loop, State: ${state}`)
+		if (debug) console.log(`|- MachineAgent: loop, State: ${state}`)
 		if (state == MachineStates.AVAILABLE) {
 			const msg: Message = {
 				fromId: socket.id,
@@ -60,19 +66,26 @@ export const createMachineAgent = () => {
 	}
 
 	const handleDirect = (msg: Message) => {
-		console.log("|- MachineAgent: Received a direct message")
+		if (debug) console.log("|- MachineAgent: Received a direct message")
 		if (msg.subject == MessageProtocols.JOB_IS_AVAILABLE) {
 			jobs.push(msg)
 		}
 		if (msg.subject == MessageProtocols.JOB_HAS_ACCEPTED_MACHINES_OFFER) {
-			console.log("|- MachineAgent: Let's manufacture the job!")
+			if (debug) console.log("|- MachineAgent: Let's manufacture the job!")
 			jobs = []
-			interval = null
+			clearInterval(interval)
 			state = MachineStates.BUSY
 			// Once up and running with the scaling. We can add greater fidelity.
 			setTimeout(() => {
 				console.log("Job Complete!")
 				state = MachineStates.AVAILABLE
+				const m: Message = {
+					fromId: socket.id,
+					toId: msg.fromId,
+					subject: MessageProtocols.JOB_COMPLETE,
+					body: {},
+				}
+				socket.emit(BrokerEvents.DIRECT, m)
 				interval = setInterval(sendQuery, 5000)
 			}, 10000)
 		}
@@ -83,10 +96,9 @@ export const createMachineAgent = () => {
 
 	const socket: Socket = io(url, ioConfig)
 		.on(BrokerEvents.CONNECT, handleConnect)
-		.on("message_error", (msg) => console.log(msg))
-		.on("connect_error", (err ) => console.log(err))
+		.on(BrokerEvents.MESSAGE_ERROR, (msg) => console.log(msg))
+		.on(BrokerEvents.CONNECT_ERROR, (err) => console.log(err))
 		.on(BrokerEvents.DIRECT, handleDirect)
-
 }
 
 const main = async () => {

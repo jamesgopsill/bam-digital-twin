@@ -2,6 +2,7 @@ version: "3.7"
 
 services:
 
+  # Example job
   job:
     image: bam/base
     build:
@@ -9,22 +10,25 @@ services:
       dockerfile: base.Dockerfile
     environment:
       - GCODE_FNAME=test.gcode
+      - BAM_DEBUG=true
     command: "node dist/job.js"
 
+  # Example machine
   machine:
     image: bam/base
     build:
       context: . 
       dockerfile: base.Dockerfile
+    environment:
+      - BAM_DEBUG=true
     command: "node dist/machine.js"
 
+  # Example broker
   broker:
     image: bam/base
     build:
       context: . 
       dockerfile: base.Dockerfile
-    expose:
-      - 3000
     volumes:
       - ./logs:/app/logs
     command: "node dist/broker.js"

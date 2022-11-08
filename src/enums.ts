@@ -1,6 +1,6 @@
 export enum AgentTypes {
 	JOB = "job",
-	MACHINE = "machine"
+	MACHINE = "machine",
 }
 
 export enum BrokerEvents {
@@ -8,17 +8,20 @@ export enum BrokerEvents {
 	ALL_JOBS = "all_jobs",
 	ALL_MACHINES = "all_machines",
 	FROM_BROKER = "from_broker",
-	DIRECT = "direct"
+	DIRECT = "direct",
+	MESSAGE_ERROR = "message_error",
+	CONNECT_ERROR = "connect_error",
 }
 
 export enum JobStates {
 	AVAILABLE = "available",
-	SELECTED = "selected"
+	SELECTED = "selected",
+	COMPLETE = "complete",
 }
 
 export enum MachineStates {
 	AVAILABLE = "available",
-	BUSY = "busy"
+	BUSY = "busy",
 }
 
 export enum MessageProtocols {
@@ -28,5 +31,5 @@ export enum MessageProtocols {
 	JOB_HAS_ACCEPTED_MACHINES_OFFER = "job_has_accepted_machines_offer",
 	JOB_HAS_DECLINED_MACHINES_OFFER = "job_has_declined_machines_offer",
 	JOB_COMPLETE = "job_complete",
-	MESSAGE_ERROR = "message_error"
+	MESSAGE_ERROR = "message_error",
 }
