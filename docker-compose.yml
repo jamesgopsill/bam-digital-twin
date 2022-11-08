@@ -1,0 +1,32 @@
+version: "3.7"
+
+services:
+
+  job:
+    image: bam/base
+    build:
+      context: . 
+      dockerfile: base.Dockerfile
+    environment:
+      - GCODE_FNAME=test.gcode
+    command: "node dist/job.js"
+
+  machine:
+    image: bam/base
+    build:
+      context: . 
+      dockerfile: base.Dockerfile
+    command: "node dist/machine.js"
+
+  broker:
+    image: bam/base
+    build:
+      context: . 
+      dockerfile: base.Dockerfile
+    expose:
+      - 3000
+    volumes:
+      - ./logs:/app/logs
+    command: "node dist/broker.js"
+  
+
