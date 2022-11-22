@@ -11,7 +11,8 @@ services:
     environment:
       - GCODE_FNAME=test.gcode
       - BAM_DEBUG=true
-    command: "node dist/job.js"
+      - N_JOBS=5
+    command: "node dist/init-multiple-jobs.js"
 
   # Example machine
   machine:
@@ -21,7 +22,8 @@ services:
       dockerfile: base.Dockerfile
     environment:
       - BAM_DEBUG=true
-    command: "node dist/machine.js"
+      - N_JOBS=5
+    command: "node dist/init-multiple-machines.js"
 
   # Example broker
   broker:
@@ -31,6 +33,6 @@ services:
       dockerfile: base.Dockerfile
     volumes:
       - ./logs:/app/logs
-    command: "node dist/broker.js"
+    command: "node dist/init-broker.js"
   
 

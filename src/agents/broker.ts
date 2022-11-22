@@ -6,10 +6,11 @@ import { v4 as uuidv4 } from "uuid"
 import {
 	BrokerConfig,
 	BrokerLogEntry,
+	Message,
 	MessagingLogEntry,
 	SocketBook,
-} from "./interfaces.js"
-import { BrokerEvents, MessageProtocols } from "./enums.js"
+} from "../utils/interfaces.js"
+import { BrokerEvents, MessageProtocols } from "../utils/enums.js"
 
 export class Broker {
 	/**
@@ -226,9 +227,9 @@ export class Broker {
 		)
 	}
 
-	handleDirectMsg(originatingSocket: Socket, msg: any) {
+	handleDirectMsg(originatingSocket: Socket, msg: Message) {
 		if (this.debug) {
-			console.log(`${BrokerEvents.DIRECT}: ${JSON.stringify(msg.subject)}`)
+			console.log(`${BrokerEvents.DIRECT}: ${msg.subject}`)
 		}
 
 		const errMsg = this.validateMsg(msg)
@@ -254,10 +255,12 @@ export class Broker {
 
 	handleAllMessage(
 		originatingSocket: Socket,
-		msg: any,
+		msg: Message,
 		protocol: BrokerEvents.ALL_JOBS | BrokerEvents.ALL_MACHINES
 	) {
-		if (this.debug) console.log(`${protocol}: ${JSON.stringify(msg)}`)
+		if (this.debug) {
+			console.log(`${protocol}: ${msg.subject}`)
+		}
 
 		const errMsg = this.validateMsg(msg)
 		if (errMsg) {
@@ -360,11 +363,3 @@ export class Broker {
 		)
 	}
 }
-
-const broker = new Broker({
-	logFolderPath: "/app/logs",
-	accessLogsKey: "VirtualBAM",
-	socketKey: "VirtualBAM",
-	debug: true,
-})
-broker.start()

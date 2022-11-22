@@ -7,8 +7,8 @@ import {
 	BrokerEvents,
 	JobStates,
 	MessageProtocols,
-} from "./enums.js"
-import { Message } from "./interfaces.js"
+} from "../utils/enums.js"
+import { Message } from "../utils/interfaces.js"
 
 const debug = process.env.BAM_DEBUG || false
 
@@ -26,7 +26,7 @@ export const createJobAgent = () => {
 	}
 
 	const gcode: string = readFileSync(
-		`${__dirname}/../gcode/${process.env.GCODE_FNAME}`
+		`${__dirname}/../../gcode/${process.env.GCODE_FNAME}`
 	).toString()
 	let state: JobStates = JobStates.AVAILABLE
 
@@ -116,10 +116,3 @@ export const createJobAgent = () => {
 		.on(BrokerEvents.ALL_JOBS, handleAllJobs)
 		.on(BrokerEvents.DIRECT, handleDirect)
 }
-
-const main = async () => {
-	await wait(1000)
-	createJobAgent()
-}
-
-main()

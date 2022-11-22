@@ -4,12 +4,10 @@ import {
 	MachineStates,
 	MessageProtocols,
 	AgentTypes,
-} from "./enums.js"
-import { Message } from "./interfaces.js"
+} from "../utils/enums.js"
+import { Message } from "../utils/interfaces.js"
 
 const debug = process.env.BAM_DEBUG || false
-
-const wait = (ms: number) => new Promise((r, _) => setTimeout(r, ms))
 
 export const createMachineAgent = () => {
 	let state: MachineStates = MachineStates.AVAILABLE
@@ -100,10 +98,3 @@ export const createMachineAgent = () => {
 		.on(BrokerEvents.CONNECT_ERROR, (err) => console.log(err))
 		.on(BrokerEvents.DIRECT, handleDirect)
 }
-
-const main = async () => {
-	await wait(2000)
-	createMachineAgent()
-}
-
-main()

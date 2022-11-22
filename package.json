@@ -7,7 +7,8 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "build-dist": "tsc",
-    "build-and-run": "tsc && docker compose build && docker compose up",
+    "build-and-run-single": "tsc && docker compose -f docker-compose.single.yml build && docker compose -f docker-compose.single.yml up",
+    "build-and-run-multiple": "tsc && docker compose -f docker-compose.multiple.yml build && docker compose -f docker-compose.multiple.yml up",
     "format": "prettier --write src/**/*"
   },
   "keywords": [],
