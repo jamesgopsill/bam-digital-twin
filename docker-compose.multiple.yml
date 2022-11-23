@@ -11,7 +11,7 @@ services:
     environment:
       - GCODE_FNAME=test.gcode
       - BAM_DEBUG=true
-      - N_JOBS=5
+      - PROFILE=example_job_profile.csv
     command: "node dist/init-multiple-jobs.js"
 
   # Example machine
@@ -22,7 +22,8 @@ services:
       dockerfile: base.Dockerfile
     environment:
       - BAM_DEBUG=true
-      - N_JOBS=5
+      - N_MACHINES=1
+      - TIME_DILATION=0.01 # ratio for realtime (1 for realtime)
     command: "node dist/init-multiple-machines.js"
 
   # Example broker

@@ -1,10 +1,11 @@
 import { createJobAgent } from "./agents/job.js"
+import { wait } from "./utils/wait.js"
 
-const wait = (ms: number) => new Promise((r, _) => setTimeout(r, ms))
+const gcodeFileName = process.env.PROFILE || "test.gcode"
 
 const main = async () => {
 	await wait(1000)
-	createJobAgent()
+	createJobAgent(gcodeFileName)
 }
 
 main()

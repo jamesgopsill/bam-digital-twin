@@ -1,6 +1,3 @@
-import path from "path"
-import { fileURLToPath } from "url"
-import { readFileSync } from "fs"
 import io from "socket.io-client"
 import {
 	AgentTypes,
@@ -9,25 +6,20 @@ import {
 	MessageProtocols,
 } from "../utils/enums.js"
 import { Message } from "../utils/interfaces.js"
+import path from "path"
+import { fileURLToPath } from "url"
+import { readFileSync } from "fs"
 
 const debug = process.env.BAM_DEBUG || false
 
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
 
-const wait = (ms: number) => new Promise((r, _) => setTimeout(r, ms))
-
-export const createJobAgent = () => {
-	// Grab the env vars from the docker env
-	console.log(`GCODE_FNAME ${process.env.GCODE_FNAME}`)
-	if (process.env.GCODE_FNAME == undefined) {
-		console.log("No gcode specified.")
-		process.exit()
-	}
-
+export const createJobAgent = (gcodeFileName: string) => {
 	const gcode: string = readFileSync(
-		`${__dirname}/../../gcode/${process.env.GCODE_FNAME}`
+		`${__dirname}/../../gcode/${gcodeFileName}`
 	).toString()
+
 	let state: JobStates = JobStates.AVAILABLE
 
 	const url: string = "http://broker:3000"
@@ -106,6 +98,7 @@ export const createJobAgent = () => {
 		if (msg.subject == MessageProtocols.JOB_COMPLETE) {
 			if (debug) console.log(`|- Job ${socket.id} received job complete`)
 			state = JobStates.COMPLETE
+			socket.disconnect()
 		}
 	}
 

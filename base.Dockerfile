@@ -12,4 +12,5 @@ RUN yarn install --production
 
 # Copy over our code
 COPY ./gcode ./gcode
+COPY ./expts ./expts
 COPY ./dist ./dist

@@ -8,6 +8,7 @@ import {
 import { Message } from "../utils/interfaces.js"
 
 const debug = process.env.BAM_DEBUG || false
+const timeDilation = parseFloat(process.env.TIME_DILATION) || 1.0
 
 export const createMachineAgent = () => {
 	let state: MachineStates = MachineStates.AVAILABLE
@@ -73,6 +74,21 @@ export const createMachineAgent = () => {
 			jobs = []
 			clearInterval(interval)
 			state = MachineStates.BUSY
+
+			// Get the predicted time from the gcode.
+			// console.log(msg.body.gcode.length)
+			let gcode = msg.body.gcode.replaceAll("\r\n", "\n")
+			gcode = msg.body.gcode.split("\n")
+			let printTime = 0
+			for (const line of gcode) {
+				if (line.startsWith(";TIME_ELAPSED:")) {
+					const els = line.split(":")
+					printTime = parseFloat(els[1])
+				}
+			}
+			// console.log(printTime)
+			printTime = printTime * 1000 * timeDilation
+
 			// Once up and running with the scaling. We can add greater fidelity.
 			setTimeout(() => {
 				console.log("Job Complete!")
@@ -85,7 +101,7 @@ export const createMachineAgent = () => {
 				}
 				socket.emit(BrokerEvents.DIRECT, m)
 				interval = setInterval(sendQuery, 5000)
-			}, 10000)
+			}, printTime)
 		}
 		if (msg.subject == MessageProtocols.JOB_HAS_DECLINED_MACHINES_OFFER) {
 			jobs = []
