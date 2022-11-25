@@ -1,6 +1,8 @@
 lockfileVersion: 5.4
 
 specifiers:
+  '@socket.io/cluster-adapter': ^0.2.1
+  '@socket.io/sticky': ^1.0.2
   '@types/express': ^4.17.14
   '@types/node': ^18.11.9
   '@types/uuid': ^8.3.4
@@ -13,6 +15,8 @@ specifiers:
   uuid: ^9.0.0
 
 dependencies:
+  '@socket.io/cluster-adapter': 0.2.1
+  '@socket.io/sticky': 1.0.2
   express: 4.18.2
   socket.io: 4.5.3
   socket.io-client: 4.5.3
@@ -28,8 +32,22 @@ devDependencies:
 
 packages:
 
+  /@socket.io/cluster-adapter/0.2.1:
+    resolution: {integrity: sha512-6PBOgghZJccrSs8ISEt8jJDuHRpNMvO+VZ7cHfkraFSoo1+2VS+p8QMiJ6p5ty+yGgEENgRo7jWdamupC1foJw==}
+    engines: {node: '>=10.0.0'}
+    dependencies:
+      debug: 4.3.4
+      socket.io-adapter: 2.4.0
+    transitivePeerDependencies:
+      - supports-color
+    dev: false
+
   /@socket.io/component-emitter/3.1.0:
     resolution: {integrity: sha512-+9jVqKhRSpsc591z5vX+X5Yyw+he/HCB4iQ/RYxw35CEPaY1gnsNE43nf9n9AaYjAQrTiI/mOwKUKdUs9vf7Xg==}
+    dev: false
+
+  /@socket.io/sticky/1.0.2:
+    resolution: {integrity: sha512-70EyGAPfwowx7ItHBd9yTDuLzjChi5K5vh65b3RpANJnqprXoe69wFu//VAbHjSXMnNjcSZNH9pXHERLFj1WKg==}
     dev: false
 
   /@types/body-parser/1.19.2:

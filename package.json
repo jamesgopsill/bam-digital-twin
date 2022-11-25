@@ -9,12 +9,15 @@
     "build-dist": "tsc",
     "build-and-run-single": "tsc && docker compose -f docker-compose.single.yml build && docker compose -f docker-compose.single.yml up",
     "build-and-run-multiple": "tsc && docker compose -f docker-compose.multiple.yml build && docker compose -f docker-compose.multiple.yml up",
-    "format": "prettier --write src/**/*"
+    "build-and-run-horizontal": "tsc && docker compose -f docker-compose.horizontal.yml build && docker compose -f docker-compose.horizontal.yml up",
+    "format": "prettier --write src/* && prettier --write src/**/*"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@socket.io/cluster-adapter": "^0.2.1",
+    "@socket.io/sticky": "^1.0.2",
     "express": "^4.18.2",
     "socket.io": "^4.5.3",
     "socket.io-client": "^4.5.3",

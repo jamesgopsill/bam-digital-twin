@@ -21,19 +21,17 @@ let i = 0
 for (let line of lines) {
 	const els = line.split(",")
 	profile.push({
-		"file": els[1],
-		"interArrivalTime": parseInt(els[0])
+		file: els[1],
+		interArrivalTime: parseInt(els[0]),
 	})
 }
 
 const main = async () => {
-
 	for (const job of profile) {
 		await wait(job.interArrivalTime)
 		console.log(`Creating Job`)
 		createJobAgent(job.file)
 	}
-
 }
 
 main()
