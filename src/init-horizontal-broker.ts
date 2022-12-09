@@ -4,9 +4,14 @@ import os from "os"
 import { Server, Socket } from "socket.io"
 import { setupMaster, setupWorker } from "@socket.io/sticky"
 import { createAdapter, setupPrimary } from "@socket.io/cluster-adapter"
+import { appendFile, existsSync, mkdirSync, writeFileSync } from "fs"
 
 import { AgentTypes, BrokerEvents, MessageProtocols } from "./utils/enums.js"
-import { Message } from "./utils/interfaces.js"
+import {
+	Message,
+	BrokerLogEntry,
+	MessagingLogEntry,
+} from "./utils/interfaces.js"
 
 const nProcesses = parseInt(process.env.N_PROCESSES) || 2
 const debug = process.env.DEBUG === "true" || false
@@ -42,6 +47,11 @@ if (cluster.isPrimary) {
 	})
 } else {
 	console.log(`Worker ${process.pid} started`)
+
+	// Create log file
+	if (!existsSync(`/app/logs`)) {
+		mkdirSync(`/app/logs`)
+	}
 
 	const httpServer = http.createServer()
 	const io = new Server(httpServer, {
@@ -84,6 +94,7 @@ if (cluster.isPrimary) {
 			socket.emit(MessageProtocols.MESSAGE_ERROR, errMsg)
 		}
 
+		appendToMessagingLog(msg, socket)
 		return
 	}
 
@@ -99,6 +110,7 @@ if (cluster.isPrimary) {
 		}
 
 		io.to(AgentTypes.MACHINE).emit(BrokerEvents.ALL_MACHINES, msg)
+		appendToMessagingLog(msg, socket)
 	}
 
 	const handleAllJobsMsg = (socket: Socket, msg: Message) => {
@@ -113,6 +125,7 @@ if (cluster.isPrimary) {
 		}
 
 		io.to(AgentTypes.JOB).emit(BrokerEvents.ALL_JOBS, msg)
+		appendToMessagingLog(msg, socket)
 	}
 
 	const handleConnect = (socket: Socket) => {
@@ -127,6 +140,7 @@ if (cluster.isPrimary) {
 
 		socket.on("disconnect", () => {
 			if (debug) console.log(`Disconnected: ${socket.id}`)
+			appendToBrokerLog(`disconnected: ${socket.id}`)
 		})
 
 		socket.on(BrokerEvents.DIRECT, (msg: any) => handleDirectMsg(socket, msg))
@@ -138,6 +152,8 @@ if (cluster.isPrimary) {
 		socket.on(BrokerEvents.ALL_JOBS, (msg: any) =>
 			handleAllJobsMsg(socket, msg)
 		)
+
+		appendToBrokerLog(`new-connection: ${socket.id}`)
 	}
 
 	const handleAuth = (socket: Socket, next: Function) => {
@@ -172,6 +188,55 @@ if (cluster.isPrimary) {
 		next()
 	}
 
+	const appendToMessagingLog = (msg: any, socket: Socket) => {
+		const messagingFilePath = `/app/logs/${process.pid}_messaging.log`
+
+		let groupKey = ""
+		if (typeof socket.handshake.headers["group-key"] == "string") {
+			groupKey = socket.handshake.headers["group-key"]
+		}
+
+		let agentType = ""
+		if (typeof socket.handshake.headers["agent-type"] == "string") {
+			agentType = socket.handshake.headers["agent-type"]
+		}
+
+		let entry: MessagingLogEntry = {
+			sessionUuid: process.pid.toString(),
+			groupKey: groupKey,
+			fromAgentType: agentType,
+			msg: msg,
+			date: new Date(),
+		}
+		appendFile(messagingFilePath, JSON.stringify(entry) + "\n", (err) => {
+			if (err) console.log(err)
+		})
+
+		const messagingNoGcodeFilePath = `/app/logs/${process.pid}_messaging-no-gcode.log`
+		if (msg.body && msg.body.gcode) {
+			entry.msg.body.gcode = ""
+		}
+		appendFile(
+			messagingNoGcodeFilePath,
+			JSON.stringify(entry) + "\n",
+			(err) => {
+				if (err) console.log(err)
+			}
+		)
+	}
+
+	const appendToBrokerLog = (msg: string) => {
+		const path = `/app/logs/${process.pid}_broker.log`
+		const entry: BrokerLogEntry = {
+			sessionUuid: process.pid.toString(),
+			date: new Date(),
+			entry: msg,
+		}
+		appendFile(path, JSON.stringify(entry) + "\n", (err) => {
+			if (err) console.log(err)
+		})
+	}
+
 	// use the cluster adapter
 	io.adapter(createAdapter())
 
@@ -180,4 +245,5 @@ if (cluster.isPrimary) {
 
 	io.use(handleAuth)
 	io.on("connection", handleConnect)
+	appendToBrokerLog("broker-starting")
 }
